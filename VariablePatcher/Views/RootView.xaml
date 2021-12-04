@@ -5,8 +5,303 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VariablePatcher.Views"
         mc:Ignorable="d"
-        Title="RootView" Height="450" Width="800">
+        xmlns:s="https://github.com/canton7/Stylet"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:mde="clr-namespace:MaterialDesignExtensions.Controls;assembly=MaterialDesignExtensions"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="{md:MaterialDesignFont}"
+        Title="{Binding Title, Mode=OneTime}" 
+        Height="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        Width="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        MinHeight="400" MinWidth="800"
+        d:DesignHeight="400" d:DesignWidth="800" WindowStartupLocation="CenterScreen">
     <Grid>
-        <TextBlock>Hello, World</TextBlock>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5"/>
+        </Grid.RowDefinitions>
+
+        <TabControl Grid.Column="1" Grid.Row="0" Style="{StaticResource MaterialDesignTabControl}">
+            <TabItem Header="Main">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <md:Card Grid.Column="1" Grid.Row="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10 10 10 15">
+                                <md:PackIcon Foreground="{DynamicResource MaterialDesignBody}" Kind="FormatListBulleted"/>
+                                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Text="Variable Files"/>
+                            </TextBlock>
+
+                            <ListView Grid.Row="1" ItemsSource="{Binding VariableItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      MouseDown="{s:Action VariableMouseDown}" SizeChanged="{s:Action VariableSizeChanged}">
+
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+
+                                        <Setter Property="ContextMenu">
+                                            <Setter.Value>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Delete" Click="{s:Action DeleteVariablePath}" ToolTip="Delete selected Variable Paths">
+                                                        <MenuItem.Icon>
+                                                            <md:PackIcon Kind="DeleteOutline" Height="18" Width="18"/>
+                                                        </MenuItem.Icon>
+                                                    </MenuItem>
+                                                </ContextMenu>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn>
+                                            <GridViewColumnHeader Content="File Path" Click="{s:Action VariableFilePathHeaderClick}" 
+                                                                  ToolTip="Click the header to reorder the items"/>
+
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <GridViewColumn DisplayMemberBinding="{Binding FileAddedDateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                        Header="File Added Date"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <DockPanel Grid.Row="2" VerticalAlignment="Center" 
+                                       Margin="10 10 10 10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding VariableText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+
+                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                            Foreground="{DynamicResource MaterialDesignBody}" IsEnabled="{Binding CanAddVariablePath}"
+                                            Click="{s:Action AddVariablePath}" ToolTip="Add new Variable Path" Margin="10 0 0 0">
+                                            <md:PackIcon Kind="Plus" Height="25" Width="25"/>
+                                    </Button>
+                                </Grid>
+                            </DockPanel>
+                        </Grid>
+                    </md:Card>
+
+                    <md:Card Grid.Column="2" Grid.Row="1" Margin="15 0 0 0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10 10 10 15">
+                                <md:PackIcon Foreground="{DynamicResource MaterialDesignBody}" Kind="CrownOutline"/>
+                                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Text="Admin Menu Files"/>
+                            </TextBlock>
+
+                            <ListView Grid.Row="1" ItemsSource="{Binding AdminMenuItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      MouseDown="{s:Action AdminMenuMouseDown}" SizeChanged="{s:Action AdminMenuSizeChanged}">
+
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+
+                                        <Setter Property="ContextMenu">
+                                            <Setter.Value>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Delete" Click="{s:Action DeleteAdminMenuPath}" ToolTip="Delete selected Admin Menu Paths">
+                                                        <MenuItem.Icon>
+                                                            <md:PackIcon Kind="DeleteOutline" Height="18" Width="18"/>
+                                                        </MenuItem.Icon>
+                                                    </MenuItem>
+                                                </ContextMenu>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn>
+                                            <GridViewColumnHeader Content="File Path" Click="{s:Action AdminMenuFilePathHeaderClick}" 
+                                                                  ToolTip="Click the header to reorder the items"/>
+
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <GridViewColumn DisplayMemberBinding="{Binding FileAddedDateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                        Header="File Added Date"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <DockPanel Grid.Row="2" VerticalAlignment="Center" 
+                                       Margin="10 10 10 10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding AdminMenuText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+
+                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                            Foreground="{DynamicResource MaterialDesignBody}" IsEnabled="{Binding CanAddAdminMenuPath}"
+                                            Click="{s:Action AddAdminMenuPath}" ToolTip="Add new Admin Menu Path" Margin="10 0 0 0">
+                                        <md:PackIcon Kind="Plus" Height="25" Width="25"/>
+                                    </Button>
+                                </Grid>
+                            </DockPanel>
+                        </Grid>
+                    </md:Card>
+
+                    <md:Card Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" 
+                             Margin="0 15 0 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="10"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Column="1" Grid.Row="1">
+                                <CheckBox Foreground="{DynamicResource MaterialDesignBody}" 
+                                          IsChecked="{Binding IsSameLocationChecked}" Content="Use the same location as the app"
+                                          HorizontalAlignment="Center" ToolTip="Use the same location as the app when patching the files; this function will be used instead of above lists if checked"/>
+
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         Foreground="{DynamicResource MaterialDesignBody}" 
+                                         Text="{Binding SameLocationVariableText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding IsSameLocationVariableEnabled}" 
+                                         md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         Foreground="{DynamicResource MaterialDesignBody}" 
+                                         Text="{Binding SameLocationAdminMenuText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding IsSameLocationAdminMenuEnabled}" 
+                                         md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left"
+                                        VerticalAlignment="Center" Margin="20 10 0 0">
+                                <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                        Foreground="{DynamicResource MaterialDesignBody}" Click="{s:Action Patch}"
+                                        ToolTip="Patch the file">
+                                    <md:PackIcon Kind="Tools" Height="25" Width="25"/>
+                                </Button>
+
+                                <CheckBox Foreground="{DynamicResource MaterialDesignBody}" 
+                                          IsChecked="{Binding IsAutoChecked}" Content="Auto"
+                                          ToolTip="Automatically run the patching process upon the program start" Margin="0 5 0 0"/>
+                            </StackPanel>
+                        </Grid>
+                    </md:Card>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Options">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <md:Card Grid.Column="1" Grid.Row="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="10"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                       Margin="10 10 10 15">
+                                <md:PackIcon Foreground="{DynamicResource MaterialDesignBody}" Kind="Cog"/>
+                                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Text="Settings"/>
+                            </TextBlock>
+
+                            <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Text="Light"/>
+
+                                <ToggleButton IsChecked="{Binding IsDarkTheme}" Click="{s:Action IsDarkThemeClicked}" Margin="10 0 10 0"/>
+
+                                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Text="Dark"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Grid.Row="3" Margin="0 5 0 0">
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                                         Foreground="{DynamicResource MaterialDesignBody}"
+                                         Text="{Binding VariableSplitKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         md:HintAssist.Hint="Variable split key..." md:TextFieldAssist.HasClearButton="True"/>
+                            </StackPanel>
+                        </Grid>
+                    </md:Card>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

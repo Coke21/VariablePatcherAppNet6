@@ -3,18 +3,26 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Icons\main.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Icons\main.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Jot" Version="2.1.11" />
+    <PackageReference Include="MaterialDesignExtensions" Version="3.3.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
     <PackageReference Include="Stylet" Version="1.3.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <None Update="Icons\main.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
