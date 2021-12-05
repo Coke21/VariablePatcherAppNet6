@@ -39,6 +39,17 @@ namespace VariablePatcher.Models
             }
         }
 
+        private bool _isPrioritised;
+        public bool IsPrioritised
+        {
+            get => _isPrioritised;
+            set
+            {
+                _isPrioritised = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -46,27 +57,5 @@ namespace VariablePatcher.Models
 
             handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        //Stylet not supported in Jot
-        //private bool _isSelected;
-        //public bool IsSelected
-        //{
-        //    get => _isSelected;
-        //    set => SetAndNotify(ref _isSelected, value);
-        //}
-
-        //private string _filePath;
-        //public string FilePath
-        //{
-        //    get => _filePath;
-        //    set => SetAndNotify(ref _filePath, value);
-        //}
-
-        //private string _fileAddedDateString;
-        //public string FileAddedDateString
-        //{
-        //    get => _fileAddedDateString;
-        //    set => SetAndNotify(ref _fileAddedDateString, value);
-        //}
     }
 }

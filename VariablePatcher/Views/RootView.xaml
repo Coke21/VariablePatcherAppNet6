@@ -17,7 +17,7 @@
         Height="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
         Width="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         MinHeight="400" MinWidth="800"
-        d:DesignHeight="400" d:DesignWidth="800" WindowStartupLocation="CenterScreen">
+        d:DesignHeight="500" d:DesignWidth="900" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5"/>
@@ -34,17 +34,19 @@
             <TabItem Header="Main">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="5"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="5"/>
                     </Grid.ColumnDefinitions>
 
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="10"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5"/>
                     </Grid.RowDefinitions>
 
                     <md:Card Grid.Column="1" Grid.Row="1">
@@ -96,23 +98,35 @@
 
                                         <GridViewColumn DisplayMemberBinding="{Binding FileAddedDateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                         Header="File Added Date"/>
+
+                                        <GridViewColumn Header="Priority Patch">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <RadioButton GroupName="VariablePrioritise" IsChecked="{Binding IsPrioritised, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
                             </ListView>
 
-                            <DockPanel Grid.Row="2" VerticalAlignment="Center" 
-                                       Margin="10 10 10 10">
+                            <DockPanel Grid.Row="2" VerticalAlignment="Center" Margin="10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBox Grid.Column="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                             Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding VariableText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+                                    <Button Grid.Column="0" Content="{md:PackIcon Magnify}" Command="{s:Action ChooseFile}"
+                                            CommandParameter="0" Foreground="{DynamicResource MaterialDesignBody}" ToolTip="Choose Variable file path" 
+                                            VerticalAlignment="Bottom"/>
 
-                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                    <TextBox Grid.Column="1" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding VariableText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True" Margin="10 0 0 0"/>
+
+                                    <Button Grid.Column="2" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
                                             Foreground="{DynamicResource MaterialDesignBody}" IsEnabled="{Binding CanAddVariablePath}"
                                             Click="{s:Action AddVariablePath}" ToolTip="Add new Variable Path" Margin="10 0 0 0">
                                             <md:PackIcon Kind="Plus" Height="25" Width="25"/>
@@ -122,7 +136,7 @@
                         </Grid>
                     </md:Card>
 
-                    <md:Card Grid.Column="2" Grid.Row="1" Margin="15 0 0 0">
+                    <md:Card Grid.Column="3" Grid.Row="1">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -171,23 +185,35 @@
 
                                         <GridViewColumn DisplayMemberBinding="{Binding FileAddedDateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                         Header="File Added Date"/>
+
+                                        <GridViewColumn Header="Priority Patch">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <RadioButton GroupName="AdminMenuPrioritise" IsChecked="{Binding IsPrioritised, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
                             </ListView>
 
-                            <DockPanel Grid.Row="2" VerticalAlignment="Center" 
-                                       Margin="10 10 10 10">
+                            <DockPanel Grid.Row="2" VerticalAlignment="Center" Margin="10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBox Grid.Column="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                             Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding AdminMenuText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+                                    <Button Grid.Column="0" Content="{md:PackIcon Magnify}" Command="{s:Action ChooseFile}"
+                                            CommandParameter="1" Foreground="{DynamicResource MaterialDesignBody}" ToolTip="Choose Admin Menu file path" 
+                                            VerticalAlignment="Bottom"/>
 
-                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
+                                    <TextBox Grid.Column="1" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding AdminMenuText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True" Margin="10 0 0 0"/>
+
+                                    <Button Grid.Column="2" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
                                             Foreground="{DynamicResource MaterialDesignBody}" IsEnabled="{Binding CanAddAdminMenuPath}"
                                             Click="{s:Action AddAdminMenuPath}" ToolTip="Add new Admin Menu Path" Margin="10 0 0 0">
                                         <md:PackIcon Kind="Plus" Height="25" Width="25"/>
@@ -197,12 +223,11 @@
                         </Grid>
                     </md:Card>
 
-                    <md:Card Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" 
-                             Margin="0 15 0 0">
+                    <md:Card Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="3">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="3*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -215,19 +240,31 @@
                             <StackPanel Grid.Column="1" Grid.Row="1">
                                 <CheckBox Foreground="{DynamicResource MaterialDesignBody}" 
                                           IsChecked="{Binding IsSameLocationChecked}" Content="Use the same location as the app"
-                                          HorizontalAlignment="Center" ToolTip="Use the same location as the app when patching the files; this function will be used instead of above lists if checked"/>
+                                          HorizontalAlignment="Center" ToolTip="Use the same location as the app when patching the files; this section will be used instead of above lists if checked"/>
 
-                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                         Foreground="{DynamicResource MaterialDesignBody}" 
-                                         Text="{Binding SameLocationVariableText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         IsEnabled="{Binding IsSameLocationVariableEnabled}" 
-                                         md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+                                <DockPanel>
+                                    <Button Content="{md:PackIcon Magnify}" Command="{s:Action ChooseFile}" CommandParameter="2" 
+                                            Foreground="{DynamicResource MaterialDesignBody}" IsEnabled="{Binding IsSameLocationVariableEnabled}" 
+                                            ToolTip="Choose Variable file name" VerticalAlignment="Bottom"/>
 
-                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                         Foreground="{DynamicResource MaterialDesignBody}" 
-                                         Text="{Binding SameLocationAdminMenuText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         IsEnabled="{Binding IsSameLocationAdminMenuEnabled}" 
-                                         md:HintAssist.Hint="File path..." md:TextFieldAssist.HasClearButton="True"/>
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Foreground="{DynamicResource MaterialDesignBody}" 
+                                             Text="{Binding SameLocationVariableText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding IsSameLocationVariableEnabled}" 
+                                             md:HintAssist.Hint="Variable file name..." md:TextFieldAssist.HasClearButton="True"
+                                             Margin="10 0 0 0"/>
+                                </DockPanel>
+
+                                <DockPanel>
+                                    <Button Content="{md:PackIcon Magnify}" Command="{s:Action ChooseFile}" CommandParameter="3"
+                                            Foreground="{DynamicResource MaterialDesignBody}" IsEnabled="{Binding IsSameLocationAdminMenuEnabled}" 
+                                            ToolTip="Choose Admin Menu file name" VerticalAlignment="Bottom"/>
+
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Foreground="{DynamicResource MaterialDesignBody}" 
+                                             Text="{Binding SameLocationAdminMenuText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding IsSameLocationAdminMenuEnabled}" 
+                                             md:HintAssist.Hint="Admin Menu file name..." md:TextFieldAssist.HasClearButton="True"
+                                             Margin="10 0 0 0"/>
+                                </DockPanel>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left"
@@ -296,7 +333,8 @@
                                 <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
                                          Foreground="{DynamicResource MaterialDesignBody}"
                                          Text="{Binding VariableSplitKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         md:HintAssist.Hint="Variable split key..." md:TextFieldAssist.HasClearButton="True"/>
+                                         md:HintAssist.Hint="Variable split key..." md:TextFieldAssist.HasClearButton="True"
+                                         ToolTip="Split key which takes variables from .txt file"/>
                             </StackPanel>
                         </Grid>
                     </md:Card>

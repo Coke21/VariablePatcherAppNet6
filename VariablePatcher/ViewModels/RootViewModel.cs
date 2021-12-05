@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Jot;
 using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using Stylet;
 using VariablePatcher.Models;
 
@@ -21,8 +22,8 @@ namespace VariablePatcher.ViewModels
             Tracker tracker = new();
             tracker.Configure<RootViewModel>()
                 .Id(p => p.WindowName, includeType: false)
-                .Property(p => p.Height, 400, "Window Height")
-                .Property(p => p.Width, 800, "Window Width")
+                .Property(p => p.Height, 500, "Window Height")
+                .Property(p => p.Width, 900, "Window Width")
 
                 .Property(p => p.VariableItems, "Saved Variable Paths")
                 .Property(p => p.VariableText, string.Empty, "Potential Variable Path")
@@ -41,6 +42,9 @@ namespace VariablePatcher.ViewModels
 
                 .PersistOn(nameof(PropertyChanged));
             tracker.Track(this);
+
+            if (IsAutoChecked)
+                _ = Patch();
         }
 
         public string WindowName => "RootWindow";
@@ -74,8 +78,9 @@ namespace VariablePatcher.ViewModels
             var listView = sender as ListView;
 
             var workingWidth = listView.ActualWidth - 18;
-            var col1 = 0.50;
-            var col2 = 0.45;
+            var col1 = 0.30;
+            var col2 = 0.35;
+            var col3 = 0.30;
 
             if (workingWidth < 0)
                 return;
@@ -83,19 +88,17 @@ namespace VariablePatcher.ViewModels
             var gridView = listView.View as GridView;
             gridView.Columns[0].Width = workingWidth * col1;
             gridView.Columns[1].Width = workingWidth * col2;
+            gridView.Columns[2].Width = workingWidth * col3;
         }
-
-        //private Brush _listsBorderBrush;
-        //public Brush ListsBorderBrush
-        //{
-        //    get => _listsBorderBrush;
-        //    set => SetAndNotify(ref _listsBorderBrush, value);
-        //}
 
         public void DeleteVariablePath()
         {
             var items = VariableItems.Where(i => i.IsSelected);
             VariableItems.RemoveRange(items.ToList());
+
+            if (VariableItems.Count > 0)
+                if (VariableItems.All(i => i.IsPrioritised == false))
+                    VariableItems[0].IsPrioritised = true;
         }
 
         public void VariableFilePathHeaderClick()
@@ -128,7 +131,8 @@ namespace VariablePatcher.ViewModels
                 VariableItems.Add(new FileModel()
                 {
                     FilePath = VariableText,
-                    FileAddedDateString = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    FileAddedDateString = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                    IsPrioritised = VariableItems.Count == 0
                 });
 
                 VariableText = string.Empty;
@@ -151,8 +155,9 @@ namespace VariablePatcher.ViewModels
             var listView = sender as ListView;
 
             var workingWidth = listView.ActualWidth - 18;
-            var col1 = 0.50;
-            var col2 = 0.45;
+            var col1 = 0.30;
+            var col2 = 0.35;
+            var col3 = 0.30;
 
             if (workingWidth < 0)
                 return;
@@ -160,19 +165,17 @@ namespace VariablePatcher.ViewModels
             var gridView = listView.View as GridView;
             gridView.Columns[0].Width = workingWidth * col1;
             gridView.Columns[1].Width = workingWidth * col2;
+            gridView.Columns[2].Width = workingWidth * col3;
         }
-
-        //private Brush _listsBorderBrush;
-        //public Brush ListsBorderBrush
-        //{
-        //    get => _listsBorderBrush;
-        //    set => SetAndNotify(ref _listsBorderBrush, value);
-        //}
 
         public void DeleteAdminMenuPath()
         {
             var items = AdminMenuItems.Where(i => i.IsSelected);
             AdminMenuItems.RemoveRange(items.ToList());
+
+            if (AdminMenuItems.Count > 0)
+                if (AdminMenuItems.All(i => i.IsPrioritised == false))
+                    AdminMenuItems[0].IsPrioritised = true;
         }
 
         public void AdminMenuFilePathHeaderClick()
@@ -205,7 +208,8 @@ namespace VariablePatcher.ViewModels
                 AdminMenuItems.Add(new FileModel()
                 {
                     FilePath = AdminMenuText,
-                    FileAddedDateString = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    FileAddedDateString = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                    IsPrioritised = AdminMenuItems.Count == 0
                 });
 
                 AdminMenuText = string.Empty;
@@ -228,6 +232,45 @@ namespace VariablePatcher.ViewModels
                 else
                     IsSameLocationVariableEnabled = IsSameLocationAdminMenuEnabled = false;
             } 
+        }
+
+        public enum FileType
+        {
+            VariableFilePath = 0,
+            AdminMenuFilePath = 1,
+            VariableFileName = 2,
+            AdminMenuFileName = 3
+        }
+
+        public void ChooseFile(string fileType)
+        {
+            var file = Enum.Parse<FileType>(fileType);
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            switch (file)
+            {
+                case FileType.VariableFilePath:
+                    openFileDialog.Filter = "Text file (*.txt)|*.txt";
+                    if (openFileDialog.ShowDialog() ?? false)
+                        VariableText = openFileDialog.FileName;
+                    break;
+                case FileType.AdminMenuFilePath:
+                    openFileDialog.Filter = "SQF file (*.sqf)|*.sqf";
+                    if (openFileDialog.ShowDialog() ?? false)
+                        AdminMenuText = openFileDialog.FileName;
+                    break;
+                case FileType.VariableFileName:
+                    openFileDialog.Filter = "Text file (*.txt)|*.txt";
+                    if (openFileDialog.ShowDialog() ?? false)
+                        SameLocationVariableText = openFileDialog.SafeFileName;
+                    break;
+                case FileType.AdminMenuFileName:
+                    openFileDialog.Filter = "SQF file (*.sqf)|*.sqf";
+                    if (openFileDialog.ShowDialog() ?? false)
+                        SameLocationAdminMenuText = openFileDialog.SafeFileName;
+                    break;
+            }
         }
 
         private string _sameLocationVariableText;
@@ -260,7 +303,17 @@ namespace VariablePatcher.ViewModels
 
         public async Task Patch()
         {
+            string variableFileLocation = string.Empty;
+            string adminMenuFileLocation = string.Empty;
 
+            if (IsSameLocationChecked)
+            {
+                
+            }
+            else
+            {
+                
+            }
         }
 
         private bool _isAutoChecked;
@@ -271,10 +324,6 @@ namespace VariablePatcher.ViewModels
         }
 
         //Options
-        //Change theme
-        //https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/MainDemo.Wpf/ThemeSettings.xaml
-        //https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/MainDemo.Wpf/Domain/ThemeSettingsViewModel.cs
-
         private bool _isDarkTheme;
         public bool IsDarkTheme
         {
