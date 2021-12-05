@@ -23,7 +23,7 @@
 Variable Patcher updates variables in .sqf file from .txt file. This app efficiently updates the variables without the need of manually doing it which is a chore. The appplication was created for a friend.
 
 ----------------------------------------
-### Old UI (ModernWpf):
+### Old UI (ModernWpf - UI framework):
 
 <p align="center">
   <b>Dark:</b>
