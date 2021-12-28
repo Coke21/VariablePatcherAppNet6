@@ -4,14 +4,14 @@
   <b>Dark:</b>
 </p>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/44268275/144714838-a963ec2d-ef9d-4d18-892d-f4434ed50f56.png">
+  <img src="https://user-images.githubusercontent.com/44268275/144767737-6ad545b0-aab6-478e-a095-83b063a74099.png">
 </p>
 
 <p align="center">
   <b>Light:</b>
 </p>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/44268275/144714834-672c315a-2de0-4267-b640-13064c6f66d6.png">
+  <img src="https://user-images.githubusercontent.com/44268275/144767734-11a4f420-c9ba-4499-9f8d-44ef730f84b7.png">
 </p>
 
 ## Technologies Used:
