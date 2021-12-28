@@ -63,7 +63,7 @@
                             </TextBlock>
 
                             <ListView Grid.Row="1" ItemsSource="{Binding VariableItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      MouseDown="{s:Action VariableMouseDown}" SizeChanged="{s:Action VariableSizeChanged}">
+                                      IsEnabled="{Binding IsVariableItemsEnabled}" MouseDown="{s:Action VariableMouseDown}" SizeChanged="{s:Action VariableSizeChanged}">
 
                                 <ListView.ItemContainerStyle>
                                     <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="{x:Type ListViewItem}">
@@ -150,7 +150,7 @@
                             </TextBlock>
 
                             <ListView Grid.Row="1" ItemsSource="{Binding AdminMenuItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      MouseDown="{s:Action AdminMenuMouseDown}" SizeChanged="{s:Action AdminMenuSizeChanged}">
+                                      IsEnabled="{Binding IsAdminMenuItemsEnabled}" MouseDown="{s:Action AdminMenuMouseDown}" SizeChanged="{s:Action AdminMenuSizeChanged}">
 
                                 <ListView.ItemContainerStyle>
                                     <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="{x:Type ListViewItem}">
@@ -270,7 +270,7 @@
                             <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left"
                                         VerticalAlignment="Center" Margin="20 10 0 0">
                                 <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" 
-                                        Foreground="{DynamicResource MaterialDesignBody}" Click="{s:Action Patch}"
+                                        Foreground="{DynamicResource MaterialDesignBody}" Click="{s:Action PatchAsync}"
                                         ToolTip="Patch the file">
                                     <md:PackIcon Kind="Tools" Height="25" Width="25"/>
                                 </Button>

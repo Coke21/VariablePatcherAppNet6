@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -44,7 +46,7 @@ namespace VariablePatcher.ViewModels
             tracker.Track(this);
 
             if (IsAutoChecked)
-                _ = Patch();
+                _ = PatchAsync();
         }
 
         public string WindowName => "RootWindow";
@@ -66,6 +68,13 @@ namespace VariablePatcher.ViewModels
 
         //Left ListView
         public BindableCollection<FileModel> VariableItems { get; set; } = new();
+
+        private bool _isVariableItemsEnabled;
+        public bool IsVariableItemsEnabled
+        {
+            get => _isVariableItemsEnabled;
+            set => SetAndNotify(ref _isVariableItemsEnabled, value);
+        }
 
         public void VariableMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -143,6 +152,13 @@ namespace VariablePatcher.ViewModels
 
         //Right ListView
         public BindableCollection<FileModel> AdminMenuItems { get; set; } = new();
+
+        private bool _isAdminMenuItemsEnabled;
+        public bool IsAdminMenuItemsEnabled
+        {
+            get => _isAdminMenuItemsEnabled;
+            set => SetAndNotify(ref _isAdminMenuItemsEnabled, value);
+        }
 
         public void AdminMenuMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -228,9 +244,15 @@ namespace VariablePatcher.ViewModels
                 SetAndNotify(ref _isSameLocationChecked, value);
 
                 if (IsSameLocationChecked)
+                {
+                    IsVariableItemsEnabled = IsAdminMenuItemsEnabled = false;
                     IsSameLocationVariableEnabled = IsSameLocationAdminMenuEnabled = true;
+                }
                 else
+                {
+                    IsVariableItemsEnabled = IsAdminMenuItemsEnabled = true;
                     IsSameLocationVariableEnabled = IsSameLocationAdminMenuEnabled = false;
+                }
             } 
         }
 
@@ -247,6 +269,7 @@ namespace VariablePatcher.ViewModels
             var file = Enum.Parse<FileType>(fileType);
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            string appPath = AppDomain.CurrentDomain.BaseDirectory;
 
             switch (file)
             {
@@ -261,14 +284,34 @@ namespace VariablePatcher.ViewModels
                         AdminMenuText = openFileDialog.FileName;
                     break;
                 case FileType.VariableFileName:
+                    openFileDialog.InitialDirectory = appPath;
                     openFileDialog.Filter = "Text file (*.txt)|*.txt";
                     if (openFileDialog.ShowDialog() ?? false)
+                    {
+                        string filePath = Path.GetDirectoryName(openFileDialog.FileName) + "\\";
+                        if (appPath != filePath)
+                        {
+                            ShowError("The path has to be the same as the .exe file!");
+                            return;
+                        }
+
                         SameLocationVariableText = openFileDialog.SafeFileName;
+                    }
                     break;
                 case FileType.AdminMenuFileName:
+                    openFileDialog.InitialDirectory = appPath;
                     openFileDialog.Filter = "SQF file (*.sqf)|*.sqf";
                     if (openFileDialog.ShowDialog() ?? false)
+                    {
+                        string filePath = Path.GetDirectoryName(openFileDialog.FileName) + "\\";
+                        if (appPath != filePath)
+                        {
+                            ShowError("The path has to be the same as the .exe file!");
+                            return;
+                        }
+
                         SameLocationAdminMenuText = openFileDialog.SafeFileName;
+                    }
                     break;
             }
         }
@@ -301,20 +344,118 @@ namespace VariablePatcher.ViewModels
             set => SetAndNotify(ref _isSameLocationAdminMenuEnabled, value);
         }
 
-        public async Task Patch()
+        public async Task PatchAsync()
         {
             string variableFileLocation = string.Empty;
             string adminMenuFileLocation = string.Empty;
 
             if (IsSameLocationChecked)
             {
-                
+                if (string.IsNullOrWhiteSpace(SameLocationVariableText) || string.IsNullOrWhiteSpace(SameLocationAdminMenuText))
+                {
+                    ShowError("Variable or Admin Menu file name is empty or null! You need to specify their names!");
+                    return;
+                }
+
+                string appFolderLocation = AppDomain.CurrentDomain.BaseDirectory;
+
+                string[] variableFiles = Directory.GetFiles(appFolderLocation, $"{SameLocationVariableText}", SearchOption.TopDirectoryOnly);
+                if (variableFiles.Length > 0)
+                    variableFileLocation = variableFiles.First();
+                else
+                {
+                    ShowError($"The file name: \"{SameLocationVariableText}\" cannot be found in the same directory as the app!");
+                    return;
+                }
+
+                string[] adminMenuFiles = Directory.GetFiles(appFolderLocation, $"{SameLocationAdminMenuText}", SearchOption.TopDirectoryOnly);
+                if (adminMenuFiles.Length > 0)
+                    adminMenuFileLocation = adminMenuFiles.First();
+                else
+                {
+                    ShowError($"The file name: \"{SameLocationAdminMenuText}\" cannot be found in the same directory as the app!");
+                    return;
+                }
             }
             else
             {
-                
+                if (VariableItems.Count == 0 | AdminMenuItems.Count == 0)
+                {
+                    ShowError("Variable or Admin Menu lists cannot have 0 items!");
+                    return;
+                }
+
+                var variableItem = VariableItems.FirstOrDefault(i => i.IsPrioritised);
+                if (variableItem is not null)
+                {
+                    string fileName = variableItem.FilePath.Split(@"\").Last();
+                    string folderPath = Path.GetDirectoryName(variableItem.FilePath);
+
+                    string[] variableFiles = Directory.GetFiles(folderPath, fileName, SearchOption.TopDirectoryOnly);
+                    if (variableFiles.Length > 0)
+                        variableFileLocation = variableFiles.First();
+                }
+
+                var adminMenuItem = AdminMenuItems.FirstOrDefault(i => i.IsPrioritised);
+                if (adminMenuItem is not null)
+                {
+                    string fileName = adminMenuItem.FilePath.Split(@"\").Last();
+                    string folderPath = Path.GetDirectoryName(adminMenuItem.FilePath);
+
+                    string[] adminMenuFiles = Directory.GetFiles(folderPath, fileName, SearchOption.TopDirectoryOnly);
+                    if (adminMenuFiles.Length > 0)
+                        adminMenuFileLocation = adminMenuFiles.First();
+                }
             }
+
+            if (string.IsNullOrWhiteSpace(variableFileLocation) || string.IsNullOrWhiteSpace(adminMenuFileLocation))
+            {
+                ShowError("It appears that the files that you provided are wrong. The app cannot find them!");
+                return;
+            }
+
+            List<VariableModel> variableList = new();
+            var variableLines = await File.ReadAllLinesAsync(variableFileLocation);
+            foreach (var variableLine in variableLines)
+            {
+                var splitLine = variableLine.Split(VariableSplitKey, StringSplitOptions.TrimEntries);
+                variableList.Add(new VariableModel()
+                {
+                    FunctionName = splitLine[0],
+                    Variable = splitLine[1]
+                });
+            }
+
+            var adminMenuList = new List<string>(await File.ReadAllLinesAsync(adminMenuFileLocation));
+            int changesNumber = 0;
+            foreach (var model in variableList)
+            {
+                int lineIndex = adminMenuList.FindIndex(i => i.StartsWith($"{model.FunctionName} = "));
+                if (lineIndex is not -1)
+                {
+                    var isUpdatedVariable = adminMenuList.FirstOrDefault(i => i.Contains($"{model.FunctionName} = {model.Variable};"));
+                    if (isUpdatedVariable is null)
+                    {
+                        changesNumber++;
+                        adminMenuList[lineIndex] = $"{model.FunctionName} = {model.Variable};";
+                        await File.WriteAllLinesAsync(adminMenuFileLocation, adminMenuList);
+                    }
+                }
+            }
+
+            if (changesNumber != 0)
+                _windowManager.ShowMessageBox("The Admin Menu File:\n\n" +
+                                              $"\"{adminMenuFileLocation}\"\n\n" +
+                                              "has been updated with new variables from the Variable file in:\n\n" +
+                                              $"\"{variableFileLocation}\"\n\n" +
+                                              $"Changes made (to lines): {changesNumber}", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                _windowManager.ShowMessageBox("No variables have been changed in Admin Menu File:\n\n" +
+                                              $"\"{adminMenuFileLocation}\"\n\n" +
+                                              "It appears that there are no new changes in variables!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
+        private void ShowError(string message, string title = "Error") => _windowManager.ShowMessageBox(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
 
         private bool _isAutoChecked;
         public bool IsAutoChecked
